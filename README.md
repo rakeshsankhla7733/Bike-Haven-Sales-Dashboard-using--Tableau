@@ -22,7 +22,7 @@ company and which ones need more attention.
 #### You can add other information to the dashboard to show your creativity, you can also
 create a story instead of dashboard.
 
-## First i have to clear unwanted data and clean the data using sql
+## I will begin by using SQL to clear any unwanted data and clean the existing datasets before proceeding with further data manipulation tasks.
 SQL queries file given above ( SQL queries )
 
 ## Then i have connect files in tableau and make dashboard
