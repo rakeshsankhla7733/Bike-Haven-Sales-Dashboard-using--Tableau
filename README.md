@@ -23,7 +23,7 @@ company and which ones need more attention.
 create a story instead of dashboard.
 
 ## I will begin by using SQL to clear any unwanted data and clean the existing datasets before proceeding with further data manipulation tasks.
-SQL queries file given above ( SQL queries )
+SQL queries file : [SQL queries.txt](https://github.com/user-attachments/files/16575602/SQL.queries.txt)
 
 ## Then i have connect files in tableau and make dashboard
  
