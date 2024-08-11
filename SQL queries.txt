@@ -1,0 +1,192 @@
+Select * from customer;
+Select * from geography;
+Select * from date;
+Select * from internetsales;
+Select * from product;
+Select * from productcategory;
+Select * from productsubcategory;
+
+alter table productsubcategory
+drop productsubcategoryalternatekey;
+
+alter table productsubcategory
+rename englishproductsubcategoryname to subcategory;
+
+alter table productsubcategory
+rename productsubcategorykey to subcategorykey;
+
+alter table productsubcategory
+rename productcategorykey to categorykey;
+
+alter table productcategory
+rename productcategorykey to categorykey;
+
+alter table productcategory
+rename englishproductcategoryname to category;
+
+alter table productcategory
+drop productcategoryalternatekey;
+
+alter table product
+rename productsubcategorykey to subcategorykey;
+
+alter table product
+rename englishproductname to productname;
+
+
+alter table product
+drop productalternatekey,
+drop color,
+drop safetystocklevel,
+drop reorderpoint,
+drop size,
+drop productline,
+drop daystomanufacture,
+drop modelname,
+drop englishdescription;
+
+--create productinfo
+
+create table productinfo as (
+select a.productkey, a.productname,  b.* from
+product as a
+full join(
+select productsubcategory.*, productcategory.category from
+productcategory
+full join
+productsubcategory
+on
+productcategory.categorykey= productsubcategory.categorykey) b
+on
+a.subcategorykey = b.subcategorykey );
+
+drop table product;
+drop table productcategory;
+drop table productsubcategory;
+
+select * from productinfo
+order by productkey;
+
+
+-- customer
+
+select * from customer
+where lastname like 'NULL';
+
+alter table customer add fullname varchar;
+
+update customer
+set fullname = (
+     select
+      case
+        when gender = 'M' then 'Mr'
+        when gender = 'F' and maritalstatus like 'M' then 'Mrs'
+        when gender = 'F' and maritalstatus like 'S' then 'Ms'
+        Else ''
+end || ' ' || firstname || ' ' || lastname
+from customer as c
+where c.customerkey = customer.customerkey);
+
+
+alter table customer
+drop customeralternatekey,
+drop title,
+drop firstname,
+drop middlename,
+drop lastname,
+drop namestyle,
+drop birthdate,
+drop maritalstatus,
+drop suffix,
+drop gender,
+drop emailaddress,
+drop totalchildren,
+drop numberchildrenathome,
+drop spanisheducation,
+drop englisheducation,
+drop frencheducation,
+drop englishoccupation,
+drop frenchoccupation,
+drop houseownerflag,
+drop numbercarsowned,
+drop addressline1,
+drop addressline2,
+drop phone,
+drop spanishoccupation,
+drop commutedistance;
+
+
+-- join customer and geography
+
+create table customergeo as (
+select a.city, a.stateprovincename, a.englishcountryregionname, b.*
+from geography as a
+full join
+customer as b
+on
+a.geographykey = b.geographykey);
+
+drop table geography;
+drop table customer;
+
+select * from customergeo;
+
+alter table customergeo
+rename englishcountryregionname to country;
+
+-- import sales budget table
+
+create table salesbudget(
+date date,
+budget numeric);
+
+
+copy salesbudget from
+'C:\Program Files\PostgreSQL\16\data\data_copy\SalesBudget.csv' delimiter ',' csv header;      
+
+
+select * from salesbudget;
+select * from customergeo;
+select * from date;
+select * from internetsales;
+select * from productinfo;
+
+select date.*, internetsales.*
+from date
+inner join
+internetsales
+on date.datekey = CAST(internetsales.orderdatekey AS integer);
+
+alter table internetsales
+alter orderdate type date
+using orderdate :: date
+
+alter table internetsales
+alter shipdate type date
+using shipdate :: date;
+
+alter table date
+alter datekey type character varying;
+
+select count (distinct orderdatekey) from internetsales; --1123
+select count (distinct datekey) from date;  --6939
+
+select * from customergeo
+where extract (year from datefirstpurchase) < 2021;
+
+delete from customergeo
+where extract (year from datefirstpurchase) < 2021;
+
+select count (distinct datefirstpurchase) from customergeo; --758
+
+
+select count (distinct orderdate) from internetsales; --1123
+
+delete from internetsales
+where extract (year from orderdate) < 2021;
+
+select * from salesbudget;
+select * from customergeo;
+select * from date;
+select * from internetsales;
+select * from productinfo;
